@@ -1,6 +1,8 @@
+import os
+
 import pytest
 
-from src.item import Item
+from src.item import Item, InstantiateCSVError
 
 
 @pytest.fixture
@@ -32,6 +34,7 @@ def test_init(return_date):
     assert return_date.name == 'Смартфон'
     assert return_date.quantity == 20
 
+
 def test_name():
     """Тест для декоратора name, в случае длинного значения, более 10 символов, Значение не вносится! """
     item = Item("Утюг", 5, 10)
@@ -56,13 +59,28 @@ def test_instantiate_from_csv():
     assert item2.price == 1000
     assert item2.quantity == 3
 
+
 def test_str(return_date):
     """тест для метода str"""
     assert str(return_date) == 'Смартфон'
+
 
 def test_repr(return_date):
     """Тест для метода repr"""
     assert repr(return_date) == "Item('Смартфон', 10000, 20)"
 
 
+def test_csv_file_not_found():
+    """тест для метода instantiate_from_csv в случае отсудствие файла"""
 
+    with pytest.raises(FileNotFoundError):
+        Item.file_mame = os.path.join('text.txt')
+        Item.instantiate_from_csv()
+
+
+def test_csv_file_bed():
+    """тест метода instantiate_from_csv на битость файла, отсудствие некоторых значений """
+
+    with pytest.raises(InstantiateCSVError):
+        Item.file_mame = os.path.join('..', 'src', 'items1.csv')
+        Item.instantiate_from_csv()

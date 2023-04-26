@@ -1,4 +1,5 @@
 import csv
+import os.path
 
 
 class Item:
@@ -7,6 +8,7 @@ class Item:
     """
     pay_rate = 1.0
     all = []
+    file_mame = os.path.join('..', 'src', 'items.csv')
 
     def __init__(self, name: str, price: float, quantity: int):
         """
@@ -60,14 +62,21 @@ class Item:
     def instantiate_from_csv(cls):
         """Открытие файла csv"""
         cls.all = []
-        with open("src\items.csv") as f:
+        if not os.path.exists(cls.file_mame):
+            raise FileNotFoundError('Отсутствует файл item.csv')
+
+        with open(os.path.join(cls.file_mame), 'r') as f:
             reader = csv.reader(f)
             next(reader)
             for row in reader:
+                if len(row) != 3:
+                    raise InstantiateCSVError("Файл item.csv поврежден")
                 name = row[0]
                 price = int(row[1])
                 quantity = int(row[2])
                 cls(name, price, quantity)
+
+    #      raise FileNotFoundError("Отсутствует файл item.csv")
 
     @staticmethod
     def string_to_number(number):
@@ -83,3 +92,8 @@ class Item:
             raise Exception("Складывать можно только наследников класса Item.")
 
         return self.quantity + other.quantity
+
+
+class InstantiateCSVError(Exception):
+    """Класс обработки ошибки повреждения csv файла, наследуется полностью от Exception"""
+    pass
